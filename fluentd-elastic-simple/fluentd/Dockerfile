@@ -1,0 +1,10 @@
+FROM ruby:2.7-buster
+
+# => Install fluentd + solr plugin
+RUN gem install fluentd --no-doc && \
+    gem install fluent-plugin-elasticsearch  -v 4.1.2  && \
+    gem install fluent-plugin-secure-forward -v 0.4.5  && \
+    gem install fluent-plugin-geoip          -v 1.3.2
+
+# => Run stage
+ENTRYPOINT exec fluentd -c /fluentd/fluentd.conf -v
