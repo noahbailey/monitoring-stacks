@@ -7,16 +7,18 @@ The basic requirements:
 1. Must _feel_ good to use. It should be 'Unixey' and simple to follow. 
 2. Must be very stable. I don't want to spend all day worrying about dumb problems with my monitoring system. It has to be _more stable_ than the apps it monitors. 
 3. Data formats: 
-  a. Suricata `eve.json` logs
-  b. OSSEC `alerts.json` logs
-  c. Syslogs; or `journald` integration
-  d. auditd parsing
-  e. httpd (apache/nginx) access/error logs
+
+  * Suricata `eve.json` logs
+  * OSSEC `alerts.json` logs
+  * Syslogs; or `journald` integration
+  * auditd parsing
+  * httpd (apache/nginx) access/error logs
 
 4. In addition, it should be able to add some basic metadata
-  a. GeoIP (maxmind geolite2)
-  b. Threat intel feeds (?)
-  c. Source/dest lookups
+
+  * GeoIP (maxmind geolite2)
+  * Threat intel feeds (?)
+  * Source/dest lookups
 
 5. While most of the data will be unstructured logs, I hope to parse & store common data types and fields. 
 6. As logs are time-series data, date parsing (from UTC) should always produce an accurate and timestamp
