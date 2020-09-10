@@ -1,5 +1,12 @@
 FROM ruby:2.7-buster
 
+# => Install GeoIP packages
+RUN apt-get update && \
+    apt-get install -y \
+    libgeoip-dev \
+    geoip-database \
+    geoip-bin
+
 # => Install fluentd + solr plugin
 RUN gem install fluentd --no-doc && \
     gem install fluent-plugin-elasticsearch  -v 4.1.2  && \
