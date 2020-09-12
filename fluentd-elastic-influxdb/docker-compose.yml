@@ -48,38 +48,39 @@ services:
       - "TZ=America/Toronto"
     ports: 
       - 5514:5514/udp
-      - 8888:8888
       - 24224:24224
     depends_on:
       - elastic1
     networks:
       - elastic
+      - influxdb
 
   influxdb: 
-    image: influxdb:1.7-alpine
+    image: quay.io/influxdb/influxdb:2.0.0-beta
     container_name: influxdb
-    environment: 
-      - INFLUXDB_DB=metrics
     volumes: 
       - influxdb_data:/var/lib/influxdb
     ports: 
-      - 8086:8086
+      - 9999:9999
     networks: 
       - influxdb
 
-
   grafana: 
-    image: grafana/grafana:latest 
+    image: grafana/grafana:7.1.5
     container_name: grafana
+    volumes: 
+      - grafana_data:/var/lib/grafana
     ports: 
       - 3000:3000
     networks: 
       - elastic
+      - influxdb
 
 networks: 
   elastic: 
+  influxdb: 
  
-
 volumes: 
   elastic1_data: 
-  opentsdb_data:
+  influxdb_data:
+  grafana_data: 
