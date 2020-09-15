@@ -44,11 +44,14 @@ services:
     container_name: fluentd
     volumes: 
       - ./fluentd/fluentd.conf:/fluentd/fluentd.conf:ro
+      - ./fluentd/keys/:/fluentd/keys/:ro
+      - fluentd_buffer:/fluentd/buffer/:rw
     environment: 
       - "TZ=America/Toronto"
     ports: 
       - 5514:5514/udp
       - 24224:24224
+      - 25225:25225
     depends_on:
       - elastic1
     networks:
@@ -84,3 +87,4 @@ volumes:
   elastic1_data: 
   influxdb_data:
   grafana_data: 
+  fluentd_buffer:

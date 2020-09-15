@@ -1,0 +1,4 @@
+# Don't commit your certs...
+*.crt
+*.key
+
