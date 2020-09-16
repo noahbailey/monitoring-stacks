@@ -1,0 +1,46 @@
+digraph system {
+
+    ## System Monitoring
+    "collectd" -> "fluentbit"
+
+    ## Suricata pieces
+    "interfaces" -> "suricata"
+    "suricata" -> "eve.json"
+    "suricata" -> "fast.log"
+    "eve.json" -> "fluentbit"
+    "fast.log" -> "ossec"
+
+    ## Nginx pieces
+    "nginx" -> "access.log"
+    "access.log" -> "fluentbit"
+    "error.log" -> "fluentbit"
+    "nginx" -> "error.log"
+    "access.log" -> "ossec"
+    "error.log" -> "ossec"
+
+    ## Audit logs
+    "auditd" -> "journald"
+    "auditd" -> "audit.log"
+    "audit.log" -> "ossec"
+    "journald" -> "fluentbit"
+
+    ## Syslog
+    "journald" -> "syslog"
+    "syslog" -> "ossec"
+
+    ## Ossec outputs to the alert streams
+    "ossec" -> "alerts.json"
+    "ossec" -> "alerts.log"
+    "alerts.log" -> "slack"
+    "alerts.log" -> "postfix"
+    "postfix" -> "mailgun"
+    "alerts.json" -> "fluentbit"
+
+    ## The backend, typically a docker box
+    "fluentbit" -> "fluentd"
+    "fluentd" -> "elasticsearch"
+    "fluentd" -> "influxdb"
+    "elasticsearch" -> "kibana"
+    "elasticsearch" -> "grafana"
+    "influxdb" -> "grafana"
+}
