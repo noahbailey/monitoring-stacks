@@ -15,4 +15,4 @@ RUN gem install fluentd                         -v 1.11.2 && \
     gem install fluent-plugin-geoip             -v 1.3.2
 
 # => Run stage
-ENTRYPOINT exec fluentd -c /fluentd/fluentd.conf -v
+ENTRYPOINT exec fluentd -c /fluentd/fluentd.conf -v -q
