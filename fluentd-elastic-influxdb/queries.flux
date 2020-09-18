@@ -28,12 +28,24 @@ from(bucket: "metrics")
 // ===================================================
 // =====================================MEMORY METRICS
 
+// AS PERCENT: 
 from(bucket: "metrics")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "collectd")
   |> filter(fn: (r) => r["host"] == "agent")
   |> filter(fn: (r) => r["plugin"] == "memory")
   |> filter(fn: (r) => r["type"] == "percent")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
+  |> yield(name: "mean")
+
+// AS BYTES
+from(bucket: "metrics")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "collectd")
+  |> filter(fn: (r) => r["host"] == "agent")
+  |> filter(fn: (r) => r["plugin"] == "memory")
+  |> filter(fn: (r) => r["type"] == "memory")
   |> filter(fn: (r) => r["_field"] == "value")
   |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
   |> yield(name: "mean")
