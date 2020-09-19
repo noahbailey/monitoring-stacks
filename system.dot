@@ -37,7 +37,8 @@ digraph system {
     "alerts.json" -> "fluentbit"
 
     ## The backend, typically a docker box
-    "fluentbit" -> "fluentd"
+    "fluentbit" -> "kafka"
+    "kafka" -> "fluentd"
     "fluentd" -> "elasticsearch"
     "fluentd" -> "influxdb"
     "elasticsearch" -> "kibana"
