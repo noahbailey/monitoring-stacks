@@ -1,0 +1,128 @@
+---
+
+version: '3'
+services: 
+
+  elastic1: 
+    image: elasticsearch:7.9.1
+    container_name: elastic1
+    environment:
+      - node.name=elastic1
+      - cluster.name=stretchy-cluster
+      - discovery.seed_hosts=elastic1
+      - cluster.initial_master_nodes=elastic1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "TZ=America/Toronto"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic1_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+  zookeeper:
+    image: zookeeper:3.4.9
+    container_name: zookeeper
+    environment:
+        ZOO_MY_ID: 1
+        ZOO_PORT: 2181
+        ZOO_SERVERS: server.1=zookeeper:2888:3888
+    ports:
+      - "2181:2181"
+    volumes:
+      - zk_data:/data:rw
+      - zk_logs:/datalog:rw
+    networks: 
+      - kafka
+
+  kafka: 
+    image: wurstmeister/kafka:2.13-2.6.0
+    container_name: kafka
+    hostname: kafka
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "fluentd:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - 9092:9092
+    volumes:
+      - kafka_data:/var/lib/kafka:rw
+    networks: 
+      - kafka
+    depends_on: 
+      - zookeeper
+
+
+  kibana:
+    image: kibana:7.9.1
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elastic1:9200
+      TZ: America/Toronto
+    ports: 
+      - 5601:5601
+    depends_on:
+      - elastic1
+    networks:
+      - elastic
+
+  fluentd: 
+    build: ./fluentd 
+    container_name: fluentd
+    volumes: 
+      - ./fluentd/fluentd.conf:/fluentd/fluentd.conf:ro
+      - ./fluentd/keys/:/fluentd/keys/:ro
+      - fluentd_buffer:/fluentd/buffer/:rw
+    environment: 
+      - "TZ=America/Toronto"
+    ports: 
+      - 5514:5514/udp
+      - 24224:24224
+      - 25225:25225
+    depends_on:
+      - elastic1
+    networks:
+      - elastic
+      - influxdb
+      - kafka
+
+  influxdb: 
+    image: quay.io/influxdb/influxdb:2.0.0-beta
+    container_name: influxdb
+    volumes: 
+      - influxdb_data:/var/lib/influxdb
+    ports: 
+      - 9999:9999
+    networks: 
+      - influxdb
+
+  grafana: 
+    image: grafana/grafana:7.1.5
+    container_name: grafana
+    volumes: 
+      - grafana_data:/var/lib/grafana
+    ports: 
+      - 3000:3000
+    networks: 
+      - elastic
+      - influxdb
+
+networks: 
+  elastic: 
+  influxdb: 
+  kafka: 
+ 
+volumes: 
+  elastic1_data: 
+  zk_data: 
+  zk_logs:
+  kafka_data: 
+  influxdb_data:
+  grafana_data: 
+  fluentd_buffer:
+  
