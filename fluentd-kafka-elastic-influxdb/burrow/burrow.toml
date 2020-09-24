@@ -1,0 +1,29 @@
+[zookeeper]
+servers=[ "zookeeper:2181" ]
+timeout=6
+root-path="/burrow"
+
+[cluster.local]
+class-name="kafka"
+servers=[ "kafka1:9092", "kafka2:9092", "kafka3:9092" ]
+topic-refresh=60
+offset-refresh=30
+
+[consumer.local]
+class-name="kafka"
+cluster="local"
+servers=[ "kafka1:9092", "kafka2:9092", "kafka3:9092" ]
+group-denylist="^(console-consumer-|python-kafka-consumer-).*$"
+group-allowlist=""
+
+[consumer.local_zk]
+class-name="kafka_zk"
+cluster="local"
+servers=[ "zookeeper:2181" ]
+zookeeper-path="/local"
+zookeeper-timeout=30
+group-denylist="^(console-consumer-|python-kafka-consumer-).*$"
+group-allowlist=""
+
+[httpserver.default]
+address=":8000"

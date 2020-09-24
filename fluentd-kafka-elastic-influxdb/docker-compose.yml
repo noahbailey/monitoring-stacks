@@ -3,6 +3,72 @@
 version: '3'
 services: 
 
+  # ==> Kafka Section
+  # =================
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    networks: 
+      - kafka
+    ports:
+      - "2181:2181"
+
+  kafka1:
+    image: wurstmeister/kafka
+    container_name: kafka1
+    networks: 
+      - kafka
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka1
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_CREATE_TOPICS: "fluentd:1:1"          # 6 partitions, 2/3 nodes to run
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+
+  kafka2:
+    image: wurstmeister/kafka
+    container_name: kafka2
+    networks: 
+      - kafka
+    ports:
+      - 9093:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka2
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 2
+
+  kafka3:
+    image: wurstmeister/kafka
+    container_name: kafka3
+    networks: 
+      - kafka
+    ports:
+      - 9094:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka3
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 3
+
+  burrow:
+    image: docker.pkg.github.com/linkedin/burrow/burrow:v1.3.4
+    container_name: burrow
+    volumes:
+      - ./burrow/burrow.toml:/etc/burrow/burrow.toml
+      - burrow_tmp:/var/tmp/burrow
+    ports:
+      - 8000:8000
+    depends_on:
+      - zookeeper
+      - kafka1
+    networks: 
+      - kafka
+
+  # ==> Elastic Stack section
+  # =========================
   elastic1: 
     image: elasticsearch:7.9.1
     container_name: elastic1
@@ -25,43 +91,6 @@ services:
     networks:
       - elastic
 
-  zookeeper:
-    image: zookeeper:3.6
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    volumes:
-      - zk_data:/data:rw
-      - zk_logs:/datalog:rw
-    networks: 
-      - kafka
-
-  kafka: 
-    image: wurstmeister/kafka:2.13-2.6.0
-    container_name: kafka
-    hostname: kafka
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "fluentd:1:1"
-    ports:
-      - 9092:9092
-    volumes:
-      - kafka_data:/var/lib/kafka:rw
-    networks: 
-      - kafka
-    depends_on: 
-      - zookeeper
-
   kibana:
     image: kibana:7.9.1
     container_name: kibana
@@ -75,6 +104,8 @@ services:
     networks:
       - elastic
 
+  # ==> Fluentd section
+  # ==================
   fluentd: 
     build: ./fluentd 
     container_name: fluentd
@@ -95,6 +126,8 @@ services:
       - influxdb
       - kafka
 
+  # ==> Influx & Grafana section
+  # ============================
   influxdb: 
     image: quay.io/influxdb/influxdb:2.0.0-beta
     container_name: influxdb
@@ -129,4 +162,5 @@ volumes:
   influxdb_data:
   grafana_data: 
   fluentd_buffer:
+  burrow_tmp: 
   
