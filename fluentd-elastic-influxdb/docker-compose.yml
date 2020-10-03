@@ -4,7 +4,7 @@ version: '3'
 services: 
 
   elastic1: 
-    image: elasticsearch:7.9.1
+    image: elasticsearch:7.9.2
     container_name: elastic1
     environment:
       - node.name=elastic1
@@ -27,7 +27,7 @@ services:
 
 
   kibana:
-    image: kibana:7.9.1
+    image: kibana:7.9.2
     container_name: kibana
     environment:
       ELASTICSEARCH_HOSTS: http://elastic1:9200
@@ -59,17 +59,17 @@ services:
       - influxdb
 
   influxdb: 
-    image: quay.io/influxdb/influxdb:2.0.0-beta
+    image: quay.io/influxdb/influxdb:2.0.0-rc
     container_name: influxdb
     volumes: 
       - influxdb_data:/var/lib/influxdb
     ports: 
-      - 9999:9999
+      - 8086:8086
     networks: 
       - influxdb
 
   grafana: 
-    image: grafana/grafana:7.1.5
+    image: grafana/grafana:7.2.0
     container_name: grafana
     volumes: 
       - grafana_data:/var/lib/grafana
