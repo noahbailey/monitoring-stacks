@@ -1,3 +1,40 @@
 ---
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluentd
+  labels:
+   service: fluentd
+spec:
+  #clusterIP: None
+  type: NodePort
+  #type: ClusterIP
+  ports:
+  - port: 25225
+    name: forward
+  selector:
+    service: fluentd
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluentd
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      containers:
+      - name: fluentd
+        image: fluentd
+        ports:
+        - name: forward
+          containerPort: 25225
+        
