@@ -33,8 +33,16 @@ spec:
     spec:
       containers:
       - name: fluentd
-        image: fluentd
+        image: localhost:32000/nbailey/fluentd:latest
         ports:
         - name: forward
           containerPort: 25225
-        
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka-service.default.svc.cluster.local"
+        - name: ELASTICSEARCH_HOST
+          value: "elasticsearch.default.svc.cluster.local"
+        - name: INFLUXDB_HOST
+          value: "http://influxdb.default.svc.cluster.local:8086"
+        - name: INFLUXDB_TOKEN
+          value: "kEVV5LEniZv49EM2jS_RlPbFL7pCPsqFfI3cOHKhVIC3rnjVPwNhK9rgafNCEJaRU___Ap7TUGS5L--ZozNxxQ=="

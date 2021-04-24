@@ -15,5 +15,9 @@ RUN gem install fluentd                         -v 1.11.2 && \
     gem install fluent-plugin-secure-forward    -v 0.4.5  && \
     gem install fluent-plugin-geoip             -v 1.3.2
 
+RUN mkdir /fluentd 
+
+COPY fluentd.conf /fluentd/fluentd.conf
+
 # => Run stage
 ENTRYPOINT exec fluentd -c /fluentd/fluentd.conf
