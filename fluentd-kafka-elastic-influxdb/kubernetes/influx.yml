@@ -6,9 +6,6 @@ metadata:
   labels:
    service: influxdb
 spec:
-  #clusterIP: None
-  type: NodePort
-  #type: ClusterIP
   ports:
   - port: 8086
     name: http

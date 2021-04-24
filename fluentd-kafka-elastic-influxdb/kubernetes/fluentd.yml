@@ -6,9 +6,6 @@ metadata:
   labels:
    service: fluentd
 spec:
-  #clusterIP: None
-  type: NodePort
-  #type: ClusterIP
   ports:
   - port: 24224
     name: forward
@@ -22,7 +19,7 @@ metadata:
   labels:
     app: nginx
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: fluentd
