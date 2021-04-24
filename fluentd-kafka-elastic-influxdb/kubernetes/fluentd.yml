@@ -10,7 +10,7 @@ spec:
   type: NodePort
   #type: ClusterIP
   ports:
-  - port: 25225
+  - port: 24224
     name: forward
   selector:
     service: fluentd
@@ -36,7 +36,7 @@ spec:
         image: localhost:32000/nbailey/fluentd:latest
         ports:
         - name: forward
-          containerPort: 25225
+          containerPort: 24224
         env:
         - name: KAFKA_BROKER
           value: "kafka-service.default.svc.cluster.local"
