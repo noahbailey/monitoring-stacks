@@ -51,6 +51,8 @@ spec:
           value: "compact"
         - name: KAFKA_LOG_DIRS
           value: /kafka/kafka-logs
+        - name: KAFKA_CREATE_TOPICS
+          value: "fluentd:1:1"
         volumeMounts:
         - name: data
           mountPath: /kafka/kafka-logs
