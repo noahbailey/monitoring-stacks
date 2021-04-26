@@ -4,26 +4,27 @@ kind: Service
 metadata:
   name: fluentd
   labels:
-   service: fluentd
+   app: fluentd
 spec:
   type: NodePort
   ports:
   - name: forward
     protocol: TCP
-    targetPort: 24224
-    port: 24224
+    port: 5000
     nodePort: 32100
-  externalIPs:
-    - 192.168.122.199
+  - name: forward-udp
+    protocol: UDP
+    port: 5000
+    nodePort: 32100
   selector:
-    service: fluentd
+    app: fluentd
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fluentd
   labels:
-    app: nginx
+    app: fluentd
 spec:
   replicas: 1
   selector:
@@ -39,7 +40,16 @@ spec:
         image: localhost:32000/nbailey/fluentd:latest
         ports:
         - name: forward
-          containerPort: 24224
+          containerPort: 5000
+          protocol: TCP
+        - name: forward-udp
+          containerPort: 5000
+          protocol: UDP
+        livenessProbe:
+          tcpSocket:
+            port: forward
+          initialDelaySeconds: 20
+          periodSeconds: 10
         env:
         - name: KAFKA_BROKER
           value: "kafka-service.default.svc.cluster.local"
@@ -48,4 +58,4 @@ spec:
         - name: INFLUXDB_HOST
           value: "http://influxdb.default.svc.cluster.local:8086"
         - name: INFLUXDB_TOKEN
-          value: "kEVV5LEniZv49EM2jS_RlPbFL7pCPsqFfI3cOHKhVIC3rnjVPwNhK9rgafNCEJaRU___Ap7TUGS5L--ZozNxxQ=="
+          value: "UIKGpftbcLBWYMYzApGDNqCWGDamZOWACLLwAClCrbriKvG8HIGARI_SKu0BT1F8zFHNFd60LuFzzYZGoUk9Yg=="
