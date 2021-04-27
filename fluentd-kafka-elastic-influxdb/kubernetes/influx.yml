@@ -39,7 +39,7 @@ spec:
           name: http
         volumeMounts:
         - name: data
-          mountPath: /var/lib/influxdb
+          mountPath: /root/.influxdbv2
   volumeClaimTemplates:
   - metadata:
       name: data

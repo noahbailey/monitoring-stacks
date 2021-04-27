@@ -55,7 +55,7 @@ spec:
         - name: INFLUXDB_HOST
           value: "http://influxdb.default.svc.cluster.local:8086"
         - name: INFLUXDB_TOKEN
-          value: "4YSYUjHlmMyEUi4O3rXF-LTpTrV_xmjrrySC6TSNxUzHjuDB2MG9ivsFHn6_CbqzG8bENykm4XdUXqJ6dP_rlg=="
+          value: "uflApic2-zr9xakwXpeWfn8sKEzxqspc4vnRE3BAIIoXXvrMRN9DLEKKIZLNJ-JwbkgXQidmPvukQ32mb4uMvQ=="
 ---
 apiVersion: v1
 kind: Service
