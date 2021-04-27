@@ -40,9 +40,20 @@ spec:
           value: http://elasticsearch.default.svc.cluster.local:9200
         - name: TZ
           value: America/Toronto
-        - name: SERVER_BASEPATH
-          value: /kibana
-        - name: SERVER_REWRITEBASEPATH
-          value: "false"
-        - name: SERVER_NAME
-          value: "192.168.122.199"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kibana-ingress
+spec:
+  rules:
+  - host: kibana.kube.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kibana-service
+            port:
+              number: 5601
