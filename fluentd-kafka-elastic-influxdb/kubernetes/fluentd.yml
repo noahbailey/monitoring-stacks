@@ -6,16 +6,13 @@ metadata:
   labels:
    app: fluentd
 spec:
-  type: NodePort
   ports:
   - name: forward
     protocol: TCP
     port: 5000
-    nodePort: 32100
   - name: forward-udp
     protocol: UDP
     port: 5000
-    nodePort: 32100
   selector:
     app: fluentd
 ---
@@ -52,10 +49,65 @@ spec:
           periodSeconds: 10
         env:
         - name: KAFKA_BROKER
-          value: "kafka-service.default.svc.cluster.local"
+          value: "kafka-0.kafka-service:9092,kafka-1.kafka-service:9092,kafka-2.kafka-service:9092"
         - name: ELASTICSEARCH_HOST
           value: "elasticsearch.default.svc.cluster.local"
         - name: INFLUXDB_HOST
           value: "http://influxdb.default.svc.cluster.local:8086"
         - name: INFLUXDB_TOKEN
-          value: "UIKGpftbcLBWYMYzApGDNqCWGDamZOWACLLwAClCrbriKvG8HIGARI_SKu0BT1F8zFHNFd60LuFzzYZGoUk9Yg=="
+          value: "4YSYUjHlmMyEUi4O3rXF-LTpTrV_xmjrrySC6TSNxUzHjuDB2MG9ivsFHn6_CbqzG8bENykm4XdUXqJ6dP_rlg=="
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluentd-input
+  labels:
+   app: fluentd-input
+spec:
+  type: NodePort
+  ports:
+  - name: forward
+    protocol: TCP
+    port: 5000
+    nodePort: 32100
+  - name: forward-udp
+    protocol: UDP
+    port: 5000
+    nodePort: 32100
+  selector:
+    app: fluentd-input
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluentd-input
+  labels:
+    app: fluentd-input
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fluentd-input
+  template:
+    metadata:
+      labels:
+        app: fluentd-input
+    spec:
+      containers:
+      - name: fluentd-input
+        image: localhost:32000/nbailey/fluentd-input:latest
+        ports:
+        - name: forward
+          containerPort: 5000
+          protocol: TCP
+        - name: forward-udp
+          containerPort: 5000
+          protocol: UDP
+        livenessProbe:
+          tcpSocket:
+            port: forward
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka-0.kafka-service:9092,kafka-1.kafka-service:9092,kafka-2.kafka-service:9092"
