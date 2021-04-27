@@ -25,7 +25,7 @@ apiVersion: apps/v1
 metadata:
   name: zookeeper
 spec:
-  serviceName: zk
+  serviceName: zookeeper-service
   replicas: 3
   selector:
     matchLabels:
