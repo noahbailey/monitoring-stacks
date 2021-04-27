@@ -1,0 +1,87 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: burrow-service
+  labels:
+   app: burrow
+spec:
+  ports:
+  - name: forward
+    protocol: TCP
+    port: 8000
+  - name: forward-udp
+    protocol: UDP
+    port: 8000
+  selector:
+    app: burrow
+---
+kind: ConfigMap
+metadata:
+  name: burrow-config
+apiVersion: v1
+data:
+  burrow.toml: |-
+    [zookeeper]
+    servers=[ "zookeeper-0.zookeeper-service:2181", "zookeeper-1.zookeeper-service:2181", "zookeeper-2.zookeeper-service:2181" ]
+    timeout=6
+    root-path="/burrow"
+    [cluster.local]
+    class-name="kafka"
+    servers=[ "kafka-0.kafka-service:9092", "kafka-1.kafka-service:9092", "kafka-2.kafka-service:9092" ]
+    topic-refresh=60
+    offset-refresh=30
+    [consumer.local]
+    class-name="kafka"
+    cluster="local"
+    servers=[ "kafka-0.kafka-service:9092", "kafka-1.kafka-service:9092", "kafka-2.kafka-service:9092" ]
+    group-blacklist=""
+    group-whitelist=""
+    [consumer.local_zk]
+    class-name="kafka_zk"
+    cluster="local"
+    servers=[ "zookeeper-0.zookeeper-service:2181", "zookeeper-1.zookeeper-service:2181", "zookeeper-2.zookeeper-service:2181" ]
+    zookeeper-path="/local"
+    zookeeper-timeout=30
+    group-blacklist=""
+    group-whitelist=""
+    [httpserver.default]
+    address=":8000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: burrow
+  labels:
+    app: burrow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: burrow
+  template:
+    metadata:
+      labels:
+        app: burrow
+    spec:
+      containers:
+      - name: burrow
+        #image: docker.pkg.github.com/linkedin/burrow/burrow:v1.3.4
+        image: solsson/burrow:latest
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        volumeMounts:
+        - name: config
+          mountPath: /etc/burrow
+      volumes:
+      - name: config
+        configMap:
+          name: burrow-config
+---
