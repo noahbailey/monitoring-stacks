@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: fluentd
-        image: localhost:32000/nbailey/fluentd:latest
+        image: noahbailey/fluentd-output:latest
         ports:
         - name: forward
           containerPort: 5000
@@ -95,7 +95,7 @@ spec:
     spec:
       containers:
       - name: fluentd-input
-        image: localhost:32000/nbailey/fluentd-input:latest
+        image: noahbailey/fluentd-input:latest
         ports:
         - name: forward
           containerPort: 5000
