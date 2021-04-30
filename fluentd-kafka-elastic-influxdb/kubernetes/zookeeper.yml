@@ -40,9 +40,11 @@ spec:
         image: wurstmeister/zookeeper
         ports:
         - containerPort: 2181
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "export ZOOKEEPER_ID=${HOSTNAME##*-}"]
         env:
-        - name: ZOOKEEPER_ID
-          value: "1"
         - name: ZOOKEEPER_SERVER_1
           value: zookeeper-0.zk.default.svc.cluster.local
         - name: ZOOKEEPER_SERVER_2
@@ -58,7 +60,7 @@ spec:
     spec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: ssd
+      storageClassName: rook-ceph-block
       resources:
         requests:
           storage: 10Gi

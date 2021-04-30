@@ -46,7 +46,7 @@ spec:
     spec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: ssd
+      storageClassName: rook-ceph-block
       resources:
         requests:
           storage: 10Gi

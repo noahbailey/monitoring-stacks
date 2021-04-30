@@ -66,14 +66,14 @@ spec:
           timeoutSeconds: 1
         volumeMounts:
         - name: data
-          mountPath: /kafka/kafka-logs
+          mountPath: /kafka/
   volumeClaimTemplates:
   - metadata:
       name: data
     spec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: ssd
+      storageClassName: rook-ceph-block
       resources:
         requests:
           storage: 10Gi
