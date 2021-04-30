@@ -64,16 +64,14 @@ metadata:
   labels:
    app: fluentd-input
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
   - name: forward
     protocol: TCP
     port: 5000
-    nodePort: 32100
   - name: forward-udp
     protocol: UDP
     port: 5000
-    nodePort: 32100
   selector:
     app: fluentd-input
 ---
