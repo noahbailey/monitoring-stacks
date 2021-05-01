@@ -40,17 +40,17 @@ spec:
         image: wurstmeister/zookeeper
         ports:
         - containerPort: 2181
-        lifecycle:
-          postStart:
-            exec:
-              command: ["/bin/sh", "-c", "export ZOOKEEPER_ID=${HOSTNAME##*-}"]
         env:
+        - name: ZOOKEEPER_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.annotations['spec.pod.beta.kubernetes.io/statefulset-index']
         - name: ZOOKEEPER_SERVER_1
-          value: zookeeper-0.zk.default.svc.cluster.local
+          value: zookeeper-0.zookeeper-service.default.svc.cluster.local
         - name: ZOOKEEPER_SERVER_2
-          value: zookeeper-1.zk.default.svc.cluster.local
+          value: zookeeper-1.zookeeper-service.default.svc.cluster.local
         - name: ZOOKEEPER_SERVER_3
-          value: zookeeper-2.zk.default.svc.cluster.local
+          value: zookeeper-2.zookeeper-service.default.svc.cluster.local
         volumeMounts:
         - name: data
           mountPath: /var/lib/zookeeper
