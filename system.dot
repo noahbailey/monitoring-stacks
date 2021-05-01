@@ -35,13 +35,28 @@ digraph system {
     "alerts.log" -> "postfix"
     "postfix" -> "mailgun"
     "alerts.json" -> "fluentbit"
+    "fluentbit" -> "TLS Stream"
 
-    ## The backend, typically a docker box
-    "fluentbit" -> "kafka"
-    "kafka" -> "fluentd"
-    "fluentd" -> "elasticsearch"
-    "fluentd" -> "influxdb"
-    "elasticsearch" -> "kibana"
-    "elasticsearch" -> "grafana"
-    "influxdb" -> "grafana"
+    ## The backend, typically a docker box/K8s cluster
+    "TLS Stream" -> "fluentd-input"
+    "fluentd-input" -> "kafka-load-balancer"
+    "kafka-load-balancer" -> "kafka-1"
+    "kafka-load-balancer" -> "kafka-2"
+    "kafka-load-balancer" -> "kafka-3"
+    "kafka-1" -> "fluentd-output"
+    "kafka-2" -> "fluentd-output"
+    "kafka-3" -> "fluentd-output"
+
+    "fluentd-output" -> "elasticsearch-1"
+    "fluentd-output" -> "elasticsearch-2"
+    "fluentd-output" -> "elasticsearch-3"
+    "fluentd-output" -> "influxdb-1"
+    "influxdb-1" -> "influxdb-service"
+    "elasticsearch-1" -> "elasticsearch-service"
+    "elasticsearch-2" -> "elasticsearch-service"
+    "elasticsearch-3" -> "elasticsearch-service"
+
+    "elasticsearch-service" -> "kibana"
+    "elasticsearch-service" -> "grafana"
+    "influxdb-service" -> "grafana"
 }
