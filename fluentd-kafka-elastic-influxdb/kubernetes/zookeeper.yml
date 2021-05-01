@@ -54,6 +54,18 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /var/lib/zookeeper
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: "app"
+                  operator: In
+                  values:
+                  - zookeeper
+              topologyKey: "kubernetes.io/hostname"
   volumeClaimTemplates:
   - metadata:
       name: data
