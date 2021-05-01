@@ -10,9 +10,6 @@ spec:
   - name: forward
     protocol: TCP
     port: 5000
-  - name: forward-udp
-    protocol: UDP
-    port: 5000
   selector:
     app: fluentd
 ---
@@ -49,13 +46,13 @@ spec:
           periodSeconds: 10
         env:
         - name: KAFKA_BROKER
-          value: "kafka-0.kafka-service:9092,kafka-1.kafka-service:9092,kafka-2.kafka-service:9092"
+          value: "kafka-0.kafka-service.default.svc.cluster.local:9092,kafka-1.kafka-service.default.svc.cluster.local:9092,kafka-0.kafka-service.default.svc.cluster.local:9092"
         - name: ELASTICSEARCH_HOST
           value: "elasticsearch.default.svc.cluster.local"
         - name: INFLUXDB_HOST
           value: "http://influxdb.default.svc.cluster.local:8086"
         - name: INFLUXDB_TOKEN
-          value: "uflApic2-zr9xakwXpeWfn8sKEzxqspc4vnRE3BAIIoXXvrMRN9DLEKKIZLNJ-JwbkgXQidmPvukQ32mb4uMvQ=="
+          value: "EHKCryYrUKHPRk38qGJqacC0h3svb7W1j1p3W7HkMNL-U-n2Ym_590qNq9qzRKuEXJTvj3K6o54B2vleXRrmyQ=="
 ---
 apiVersion: v1
 kind: Service
@@ -68,9 +65,6 @@ spec:
   ports:
   - name: forward
     protocol: TCP
-    port: 5000
-  - name: forward-udp
-    protocol: UDP
     port: 5000
   selector:
     app: fluentd-input
@@ -108,4 +102,4 @@ spec:
           periodSeconds: 10
         env:
         - name: KAFKA_BROKER
-          value: "kafka-0.kafka-service:9092,kafka-1.kafka-service:9092,kafka-2.kafka-service:9092"
+          value: "kafka-0.kafka-service.default.svc.cluster.local:9092,kafka-1.kafka-service.default.svc.cluster.local:9092,kafka-0.kafka-service.default.svc.cluster.local:9092"
