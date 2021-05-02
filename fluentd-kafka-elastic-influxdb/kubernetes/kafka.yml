@@ -65,6 +65,8 @@ spec:
           value: "compact"
         - name: KAFKA_CREATE_TOPICS
           value: "fluentd:1:1, events:1:1, system:1:1, metrics:1:1"
+        - name: KAFKA_MESSAGE_MAX_BYTES
+          value: "104857600"
         livenessProbe:
           tcpSocket:
             port: 9092
