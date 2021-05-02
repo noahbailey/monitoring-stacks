@@ -36,6 +36,10 @@ spec:
         image: wurstmeister/kafka:2.13-2.7.0
         ports:
         - containerPort: 9092
+        lifecycle: 
+          postStart: 
+            exec: 
+              command: ["/bin/sh", "-c", "rm -f /kafka/kafka-logs/meta.properties"]
         env:
         - name: ID
           valueFrom:
