@@ -51,6 +51,15 @@ spec:
           value: zookeeper-1.zookeeper-service.default.svc.cluster.local
         - name: ZOOKEEPER_SERVER_3
           value: zookeeper-2.zookeeper-service.default.svc.cluster.local
+        - name: JAVA_OPTS
+          value: "-Xms256m -Xmx256m"
+        resources: 
+          limits: 
+            cpu: "500m"
+            memory: "300Mi"
+          requests: 
+            cpu: "100m"
+            memory: "256Mi"
         volumeMounts:
         - name: data
           mountPath: /var/lib/zookeeper

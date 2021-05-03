@@ -71,6 +71,13 @@ spec:
           value: "fluentd:1:1, events:1:1, system:1:1, metrics:1:1"
         - name: KAFKA_MESSAGE_MAX_BYTES
           value: "104857600"
+        resources: 
+          limits: 
+            cpu: "1000m"
+            memory: "1500Mi"
+          requests: 
+            cpu: "250m"
+            memory: "512Mi"
         livenessProbe:
           tcpSocket:
             port: 9092

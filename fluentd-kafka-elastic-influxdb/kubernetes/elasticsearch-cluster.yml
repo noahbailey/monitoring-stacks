@@ -66,6 +66,13 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /usr/share/elasticsearch/data
+        resources: 
+          limits: 
+            cpu: "1000m"
+            memory: "1000Mi"
+          requests: 
+            cpu: "250m"
+            memory: "512Mi"
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
