@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluentd
+  labels:
+   app: fluentd
+spec:
+  type: LoadBalancer
+  ports:
+  - name: forward
+    protocol: TCP
+    port: 5000
+  selector:
+    app: fluentd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      containers:
+      - name: fluentd
+        image: noahbailey/fluentd-elastic-influx:latest
+        ports:
+        - name: forward
+          containerPort: 5000
+          protocol: TCP
+        - name: forward-udp
+          containerPort: 5000
+          protocol: UDP
+        livenessProbe:
+          tcpSocket:
+            port: forward
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: "elasticsearch.default.svc.cluster.local"
+        - name: INFLUXDB_HOST
+          value: "http://influxdb.default.svc.cluster.local:8086"
+        - name: INFLUXDB_TOKEN
+          value: "EHKCryYrUKHPRk38qGJqacC0h3svb7W1j1p3W7HkMNL-U-n2Ym_590qNq9qzRKuEXJTvj3K6o54B2vleXRrmyQ=="

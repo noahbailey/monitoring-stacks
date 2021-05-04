@@ -4,7 +4,7 @@ version: '3'
 services: 
 
   elastic1: 
-    image: elasticsearch:7.9.3
+    image: elasticsearch:7.10.1
     container_name: elastic1
     environment:
       - node.name=elastic1
@@ -27,7 +27,7 @@ services:
 
 
   kibana:
-    image: kibana:7.9.3
+    image: kibana:7.10.1
     container_name: kibana
     environment:
       ELASTICSEARCH_HOSTS: http://elastic1:9200
@@ -40,18 +40,16 @@ services:
       - elastic
 
   fluentd: 
-    build: ./fluentd 
+    image: noahbailey/fluentd-elastic-influx:latest
     container_name: fluentd
     volumes: 
-      - ./fluentd/fluentd.conf:/fluentd/fluentd.conf:ro
-      - ./fluentd/keys/:/fluentd/keys/:ro
       - fluentd_buffer:/fluentd/buffer/:rw
     environment: 
-      - "TZ=America/Toronto"
+      - "ELASTICSEARCH_HOST=elastic1"
+      - "INFLUXDB_HOST=influxdb:8086"
+      - "INFLUXDB_TOKEN=XXXXXX"
     ports: 
-      - 5514:5514/udp
-      - 24224:24224
-      - 25225:25225
+      - 5000:5000
     depends_on:
       - elastic1
     networks:
