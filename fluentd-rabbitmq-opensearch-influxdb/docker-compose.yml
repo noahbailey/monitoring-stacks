@@ -1,0 +1,123 @@
+---
+
+version: '3'
+services: 
+
+  opensearch-node1:
+    image: opensearchproject/opensearch:1.0.0
+    container_name: opensearch-node1
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node2
+      - discovery.seed_hosts=opensearch-node1
+      - cluster.initial_master_nodes=opensearch-node1
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 
+        hard: 65536
+    volumes:
+      - opensearch-node1_data:/usr/share/opensearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600 
+    networks:
+      - opensearch-net
+
+  #opensearch-node2:
+  #  image: opensearchproject/opensearch:1.0.0
+  #  container_name: opensearch-node2
+  #  environment:
+  #    - cluster.name=opensearch-cluster
+  #    - node.name=opensearch-node2
+  #    - discovery.seed_hosts=opensearch-node1,opensearch-node2
+  #    - cluster.initial_master_nodes=opensearch-node1,opensearch-node2
+  #    - bootstrap.memory_lock=true
+  #    - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+  #  ulimits:
+  #    memlock:
+  #      soft: -1
+  #      hard: -1
+  #    nofile:
+  #      soft: 65536 
+  #      hard: 65536
+  #  volumes:
+  #    - opensearch-node2_data:/usr/share/opensearch/data
+  #  networks:
+  #    - opensearch-net
+
+  rabbitmq:
+    image: rabbitmq:3.9
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes: 
+      - rabbitmq_data:/var/lib/rabbitmq:rw
+    networks: 
+      - rabbitmq-net
+
+
+  fluentd-input: 
+    build: fluentd-input
+    container_name: fluentd-input
+    volumes: 
+      - fluentd-input_buffer:/fluentd/buffer/:rw
+    environment: 
+      - "RABBITMQ_HOST=rabbitmq"
+    ports: 
+      - 5000:5000
+    depends_on:
+      - opensearch-node1
+    networks:
+      - opensearch-net
+      - influxdb-net
+      - rabbitmq-net
+
+  fluentd-output: 
+    build: fluentd-output
+    container_name: fluentd-output
+    volumes: 
+      - fluentd-output_buffer:/fluentd/buffer/:rw
+    environment: 
+      RABBITMQ_HOST: "rabbitmq"
+      OPENSEARCH_HOST: "opensearch-node1"
+      OPENSEARCH_USER: "admin"
+      OPENSEARCH_PASS: "admin"
+      INFLUXDB_HOST: "http://influxdb:8086"
+      INFLUXDB_TOKEN: "XXXXXX"
+    depends_on:
+      - opensearch-node1
+    networks:
+      - opensearch-net
+      - influxdb-net
+      - rabbitmq-net
+
+  influxdb: 
+    image: quay.io/influxdb/influxdb:v2.0.8
+    container_name: influxdb
+    volumes: 
+      - influxdb_data:/var/lib/influxdb
+    ports: 
+      - 8086:8086
+    networks: 
+      - influxdb-net
+
+
+networks: 
+  opensearch-net: 
+  influxdb-net: 
+  rabbitmq-net: 
+
+volumes: 
+  opensearch-node1_data: 
+  opensearch-node2_data: 
+  influxdb_data:
+  grafana_data: 
+  fluentd-input_buffer:
+  fluentd-output_buffer:
+  rabbitmq_data:
