@@ -1,14 +1,61 @@
 digraph system {
 
-    ## System Monitoring
-    "collectd" -> "fluentbit"
+    subgraph cluster_core {
+        "kernel"
+        "interfaces"
+        "syslog"
+        "auditd"
+        "audit.log"
+        "monit"
+        "postfix"
+    }
+    subgraph cluster_collectd {
+        "/proc"
+        "libcurl"
+        "collectd"
+    }
 
-    ## Suricata pieces
-    "interfaces" -> "suricata"
-    "suricata" -> "eve.json"
-    "suricata" -> "fast.log"
-    "eve.json" -> "fluentbit"
-    "fast.log" -> "ossec"
+    subgraph cluster_ossec {
+        "ossec"
+        "alerts.log"
+        "alerts.json"
+    }
+
+    subgraph cluster_nginx {
+        "nginx"
+        "access.log"
+        "error.log"
+    }
+
+    subgraph cluster_alerts {
+        "SES"
+    }
+
+    subgraph cluster_backend {
+        "fluentd-input"
+        "rabbitmq"
+        "fluentd-output"
+        "influxdb"
+        "opensearch"
+        "grafana"
+        "kibana"
+    }
+
+
+    ## The core pieces...
+    "kernel" -> "interfaces"
+    "kernel" -> "auditd"
+    "kernel" -> "syslog"
+    "syslog" -> "postfix"
+
+    ## System Monitoring
+    "/proc" -> "collectd"
+    "libcurl" -> "collectd"
+    "collectd" -> "fluentbit"
+    "kernel" -> "monit"
+    "monit" -> "postfix"
+    "grafana" -> "slack"
+    "kibana" -> "slack"
 
     ## Nginx pieces
     "nginx" -> "access.log"
@@ -19,44 +66,32 @@ digraph system {
     "error.log" -> "ossec"
 
     ## Audit logs
-    "auditd" -> "journald"
     "auditd" -> "audit.log"
     "audit.log" -> "ossec"
-    "journald" -> "fluentbit"
 
     ## Syslog
-    "journald" -> "syslog"
     "syslog" -> "ossec"
+    "syslog" -> "fluentbit"
 
     ## Ossec outputs to the alert streams
     "ossec" -> "alerts.json"
     "ossec" -> "alerts.log"
-    "alerts.log" -> "slack"
-    "alerts.log" -> "postfix"
-    "postfix" -> "mailgun"
+    "ossec" -> "postfix"
+    "postfix" -> "SES"
     "alerts.json" -> "fluentbit"
     "fluentbit" -> "TLS Stream"
 
     ## The backend, typically a docker box/K8s cluster
     "TLS Stream" -> "fluentd-input"
-    "fluentd-input" -> "kafka-load-balancer"
-    "kafka-load-balancer" -> "kafka-1"
-    "kafka-load-balancer" -> "kafka-2"
-    "kafka-load-balancer" -> "kafka-3"
-    "kafka-1" -> "fluentd-output"
-    "kafka-2" -> "fluentd-output"
-    "kafka-3" -> "fluentd-output"
+    "fluentd-input" -> "rabbitmq"
+    "rabbitmq" -> "fluentd-output"
 
-    "fluentd-output" -> "elasticsearch-1"
-    "fluentd-output" -> "elasticsearch-2"
-    "fluentd-output" -> "elasticsearch-3"
-    "fluentd-output" -> "influxdb-1"
-    "influxdb-1" -> "influxdb-service"
-    "elasticsearch-1" -> "elasticsearch-service"
-    "elasticsearch-2" -> "elasticsearch-service"
-    "elasticsearch-3" -> "elasticsearch-service"
+    "fluentd-output" -> "opensearch"
+    "fluentd-output" -> "influxdb"
 
-    "elasticsearch-service" -> "kibana"
-    "elasticsearch-service" -> "grafana"
-    "influxdb-service" -> "grafana"
-}
+    "opensearch" -> "kibana"
+    "opensearch" -> "grafana"
+    "influxdb" -> "grafana"
+
+
+} 
